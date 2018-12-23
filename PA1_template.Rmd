@@ -27,13 +27,6 @@ steps_day_total <- sapply(data_day, function(x) {sum(x$steps)})
 hist(steps_day_total, xlab = "Steps", main = "Histogram of total # of steps per day")
 ```
 
-Mean and median number of steps taken each day
-
-```{r}
-steps_day_mean <- sapply(data_day, function(x) {mean(x$steps)})
-steps_day_median <- sapply(data_day, function(x) {median(x$steps)})
-```
-
 Mean and Median of daily total of steps
 
 ```{r}
@@ -41,13 +34,6 @@ mean(steps_day_total, na.rm = TRUE)
 median(steps_day_total, na.rm = TRUE)
 ```
 
-Plotting the time series of average take per day
-
-```{r}
-days_scale <- sapply(data_day, function(x) {max(x$date)})
-time_serie <- cbind(days_scale, steps_day_mean)
-plot(time_serie[,1], time_serie[,2], type = "l", xlab = "days", ylab = "average steps", main = "Average # steps per interval by day")
-```
 
 ## What is the average daily activity pattern?
 
