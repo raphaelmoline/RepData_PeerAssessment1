@@ -8,18 +8,113 @@ output:
 
 ## Loading and preprocessing the data
 
+Unzip and load the data in a data frame
+
+```{r}
+unzip("activity.zip")
+data <- read.csv("activity.csv",stringsAsFactors = FALSE)
+data$date <- as.Date.character(data$date)
+```
 
 
 ## What is mean total number of steps taken per day?
 
+splitting the data frame on date, vectorized sum and plotting
 
+```{r}
+data_day <- split(data, data$date)
+steps_day_total <- sapply(data_day, function(x) {sum(x$steps)})
+hist(steps_day_total, xlab = "Steps", main = "Histogram of total # of steps per day")
+```
+
+Mean and median number of steps taken each day
+
+```{r}
+steps_day_mean <- sapply(data_day, function(x) {mean(x$steps)})
+steps_day_median <- sapply(data_day, function(x) {median(x$steps)})
+```
+
+Note: the median consists of zeros and NAs, meaning that more than half of the day no steps were taken
+
+```{r}
+steps_day_median
+```
+
+Plotting the time series of average take per day
+
+```{r}
+days_scale <- sapply(data_day, function(x) {max(x$date)})
+time_serie <- cbind(days_scale, steps_day_mean)
+plot(time_serie[,1], time_serie[,2], type = "l", xlab = "days", ylab = "average steps", main = "Average # steps per interval by day")
+```
 
 ## What is the average daily activity pattern?
+
+Split the data on interval
+
+```{r}
+data_interval <- split(data, data$interval)
+steps_interval_mean <- sapply(data_interval, function(x) {mean(x$steps, na.rm = TRUE)})
+```
+
+Plot the profile during the day
+
+```{r}
+plot(as.numeric(names(steps_interval_mean)),steps_interval_mean, type = "l", main = "# of steps per interval", xlab = "", ylab = "", ylim = c(0,200))
+```
+
+Find the max value name and its index and the corresponding number of steps value
+
+```{r}
+index <- which.max(steps_interval_mean)
+index
+steps_interval_mean[index]
+```
 
 
 
 ## Imputing missing values
 
+The strategy that will be used it to replace NAs with the interval average
+The new data set will be data2
 
+```{r}
+data2 <- data
+for (i in 1:length(data$steps)) {
+    if (is.na(data$steps[i])) {
+        ref <- match(data$interval[i], names(steps_interval_mean))
+        data2$steps[i] <- steps_interval_mean[ref]
+    }
+}
+```
+
+Revised histogram: the frequency of the center of the distribution is higher since we have replaced not available data with average data
+
+```{r}
+data_day2 <- split(data2, data2$date)
+steps_day_total2 <- sapply(data_day2, function(x) {sum(x$steps)})
+hist(steps_day_total2,xlab = "Steps", main = "Histogram of total # of steps per day after replacing missing values")
+```
 
 ## Are there differences in activity patterns between weekdays and weekends?
+
+Creating weekday boolean and splitting the data
+
+```{r}
+data$weekdays <- ifelse(weekdays(data$date, abbreviate = TRUE)=="Sat" | weekdays(data$date, abbreviate = TRUE)=="Sun",0,1)
+
+data_interval_wday <- split(data[data$weekdays==1,], data[data$weekdays==1,3])
+steps_interval_mean_wday <- sapply(data_interval_wday, function(x) {mean(x$steps, na.rm = TRUE)})
+
+data_interval_wkend <- split(data[data$weekdays==0,], data[data$weekdays==0,3])
+steps_interval_mean_wkend <- sapply(data_interval_wkend, function(x) {mean(x$steps, na.rm = TRUE)})
+```
+
+Plotting the results: activity starts later on week ends, but is higher during the usual 'working hours' on week ends, due to not being stuck at one's desk likely
+
+```{r, fig.height=10}
+par(mfrow=c(2,1))
+plot(as.numeric(names(steps_interval_mean_wkend)),steps_interval_mean_wkend, type = "l", main = "# of steps per interval on weekend", xlab = "", ylab = "", ylim = c(0,200))
+plot(as.numeric(names(steps_interval_mean_wday)),steps_interval_mean_wday, type = "l", main = "# of steps per interval on weekday",xlab = "", ylab = "", ylim = c(0,200))
+
+```
