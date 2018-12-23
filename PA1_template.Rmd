@@ -34,10 +34,11 @@ steps_day_mean <- sapply(data_day, function(x) {mean(x$steps)})
 steps_day_median <- sapply(data_day, function(x) {median(x$steps)})
 ```
 
-Note: the median consists of zeros and NAs, meaning that more than half of the day no steps were taken
+Mean and Median of daily total of steps
 
 ```{r}
-steps_day_median
+mean(steps_day_total, na.rm = TRUE)
+median(steps_day_total, na.rm = TRUE)
 ```
 
 Plotting the time series of average take per day
@@ -94,6 +95,13 @@ Revised histogram: the frequency of the center of the distribution is higher sin
 data_day2 <- split(data2, data2$date)
 steps_day_total2 <- sapply(data_day2, function(x) {sum(x$steps)})
 hist(steps_day_total2,xlab = "Steps", main = "Histogram of total # of steps per day after replacing missing values")
+```
+
+Revised Mean and Median of daily total of steps - the mean is unchanged but the median is realigned (slight change) compare to prior to replacing missing values
+
+```{r}
+mean(steps_day_total2, na.rm = TRUE)
+median(steps_day_total2, na.rm = TRUE)
 ```
 
 ## Are there differences in activity patterns between weekdays and weekends?
